@@ -3,7 +3,7 @@ module Poirot
     def template_include_tag(*sources)
       sources.collect do |source|
         template = File.open(resolve_partial_path(source), "rb")
-        content_tag :script, template.read.html_safe, :type => "text/mustache", :id => "#{template_name(source).parameterize.dasherize}-template"
+        content_tag :script, Haml::Engine.new(template.read).render, :type => "text/mustache", :id => "#{template_name(source).parameterize.dasherize}-template"
       end.join("\n").html_safe
     end
 
@@ -24,11 +24,11 @@ module Poirot
     def resolve_partial_path(source)
       if is_absolute_path?(source)
         segments = source.to_s.split('/')
-        partial_name = "_#{segments.pop}.hamstache"
+        partial_name = "_#{segments.pop}.haml.mustache"
         segments << partial_name
         Rails.root.join('app/views', *segments)
       else
-        Rails.root.join('app/views', controller_name, "_#{source}.hamstache")
+        Rails.root.join('app/views', controller_name, "_#{source}.haml.mustache")
       end
     end
   end
